@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 
 class FormulaModel with ChangeNotifier {
   String _formula = '';
-  List<String> _rpnStack = [];
-  static final _limit = 60;
+  final List<String> _rpnStack = [];
+  static const _limit = 60;
 
-  int _markIdx = 0;
+  int _markIdx;
 
-  get formula => _formula;
-  get rpnStack => _rpnStack;
+  String get formula => _formula;
+  List<String> get rpnStack => _rpnStack;
+  int get markIdx => _markIdx;
 
-  Text formulaText;
+  void initIdx() {
+    _markIdx = 0;
+  }
 
+  // 電卓エリアからの入力に対応する
   void inputChar(String char) {
     if (char == 'C') {
       _formula = '';
@@ -27,35 +31,38 @@ class FormulaModel with ChangeNotifier {
     }
   }
 
-  void initText() {
-    formulaText = Text(_formula, style: TextStyle(fontSize: 25));
+  List<String> formulaToList() {
+    final _list = <String>[];
+    var _begin = 0;
+    for (var i = 0; i < _formula.length; i ++) {
+      // ignore: unnecessary_parenthesis
+      if (('+−×÷').contains(_formula[i])) {
+        _list
+          ..add(_formula.substring(_begin, i))
+          ..add(_formula[i]);
+        _begin = i + 1;
+      }
+    }
+    if (_begin <= _formula.length) {
+      _list.add(_formula.substring(_begin, _formula.length));
+    }
     notifyListeners();
+    return _list;
+  }
+  
+  bool checkFormula() {
+    return (_formula.contains('+')
+        || _formula.contains('−')
+        || _formula.contains('×')
+        || _formula.contains('÷'))
+        && int.tryParse(_formula[0]) != null
+        && int.tryParse(_formula[_formula.length - 1]) != null;
   }
 
-  void proceed() {
-    if (_markIdx + 1 < formulaText.data.length) {
+  void proceed(int len) {
+    if (_markIdx < len) {
       _markIdx ++;
     }
-    formulaText = Text.rich(
-      TextSpan(
-        text: _formula.substring(0, _markIdx),
-        style: TextStyle(fontSize: 25, color: Colors.blue),
-        children: [
-          TextSpan(
-            text: _formula[_markIdx],
-            style: TextStyle(color: Colors.red),
-          ),
-          _markIdx <= _formula.length
-              ? TextSpan(
-            text: _formula.substring(_markIdx + 1, _formula.length),
-            style: TextStyle(color: Colors.black),
-          )
-              : TextSpan(
-            text: '',
-          ),
-        ],
-      ),
-    );
     notifyListeners();
   }
 }

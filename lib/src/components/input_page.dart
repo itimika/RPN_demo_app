@@ -14,7 +14,7 @@ class InputPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.all(30),
+            padding: const EdgeInsets.all(30),
             child: Column(
               children: <Widget>[
                 Consumer<FormulaModel>(
@@ -32,16 +32,26 @@ class InputPage extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: MaterialButton(
-              onPressed: () => Navigator.pushNamed(context, '/demo'),
-              child: const Text(
-                'Demo RPN calculate',
-                style: TextStyle(fontSize: 15),
-              ),
+            child: Consumer<FormulaModel>(
+              builder: (_, model, __) {
+                return Visibility(
+                  visible: model.checkFormula(),
+                  child: MaterialButton(
+                    onPressed: () {
+                      model.initIdx();
+                      Navigator.pushNamed(context, '/demo');
+                    } ,
+                    child: const Text(
+                      'Demo RPN calculate',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 5),
             child: SizedBox(
               height: SizeConfig.width ,
               width: SizeConfig.width,
@@ -75,7 +85,8 @@ class InputPage extends StatelessWidget {
 
   Widget _buildButton(BuildContext context, String char) {
     return MaterialButton(
-      onPressed: () => Provider.of<FormulaModel>(context, listen: false).inputChar(char),
+      onPressed: () =>
+          Provider.of<FormulaModel>(context, listen: false).inputChar(char),
       color: Colors.white70,
       child: char == 'back'
           ? const Icon(Icons.backspace)
