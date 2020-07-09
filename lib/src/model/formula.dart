@@ -5,8 +5,11 @@ class FormulaModel with ChangeNotifier {
   List<String> _rpnStack = [];
   static final _limit = 60;
 
+  Text _formulaText;
+
   get formula => _formula;
   get rpnStack => _rpnStack;
+  get formulaText => _formulaText;
 
   void inputChar(String char) {
     if (char == 'C') {
